@@ -1,0 +1,40 @@
+<script type="text/javascript">
+    RED.nodes.registerType('node-red-contrib-colorspace',{
+        category: 'function',
+        color: '#ffa59c',
+        defaults: {
+            name: {value:""},
+            target: {value:"payload"}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "font-awesome/fa-paint-brush",
+        label: function() {
+            return this.name||"Color Converter";
+        },
+        paletteLabel: "Color Converter",
+        oneditprepare:  function() {
+            $("#node-input-target").typedInput({
+                default:"msg",
+                types:["msg"]
+            })
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="node-red-contrib-colorspace">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+
+    <div class="form-row">
+        <label for="node-input-target"><i class="fa fa-tag"></i> Target</label>
+        <input type="text" id="node-input-target">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="node-red-contrib-colorspace">
+    <p>A node to convert color in NodeRed</p>
+</script>
