@@ -22,9 +22,9 @@ module.exports = function(RED) {
 
         this.colors = {
             "rgb":["red","green","blue"],
-            "hsv":['hue',"staturation","brightness"],
+            "hsv":['hue',"saturation","brightness"],
             "hex":"",
-            "hsl":['hue',"staturation","lightness"],
+            "hsl":['hue',"saturation","lightness"],
             "hwb":['hue',"whiteness","blackness"],
             "cmyk":['cyan','magenta','yellow','black'],
             "ansi16":"",
