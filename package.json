@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-colorspace",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Conver colors and colors temperature in NodeRed",
   "node-red": {
     "nodes": {
@@ -9,10 +9,14 @@
   },
   "dependencies": {
     "color-convert": "^2.0.1",
-    "color-temperature":"^0.2.7"
+    "color-temperature": "^0.2.7"
   },
   "main": "node-red-contrib-colorspace.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.23.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,7 +29,7 @@
     "converter",
     "node-red",
     "nodered",
-    "temerature",
+    "temperature",
     "yeelight",
     "rgb",
     "hsv",

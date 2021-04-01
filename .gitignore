@@ -41,3 +41,7 @@ jspm_packages
 
 # Visual Studio Code
 .vscode
+launch.json
+.eslintrc.json
+.gitignore
+.package-lock.json
