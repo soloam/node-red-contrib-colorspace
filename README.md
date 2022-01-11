@@ -1,31 +1,42 @@
 ## node-red-contrib-colorspace
 
-
 #### Node-RED Node, that helps conver colors
 
 node-red-contrib-colorspace imports into NodeRed the conversion from npm packages color-convert and color-temperature
 
 Please note that color temperature is a extimation! It's very usefull to emulate color temperature in RGB lamps, but the values are not 100% accurate.
 
-
 ### Install
+
 Just run
+
 ```
     npm install node-red-contrib-colorspace
 ```
 
 ### Usage
 
-This node recives any of the supported color spaces (RGB, HSV, HEX, HSL, HWB, CMYK, ANSI, XYZ, LAB, LCH, Color Name, HCG, GARY, Color Temperature) and returns all of the other)
-
+This node recives any of the supported color spaces (RGB, RGBW, HSV, HSI, HEX, HSL, HWB, CMYK, ANSI, XYZ, LAB, LCH, Color Name, HCG, GARY, Color Temperature) and returns all of the other)
 
 Return
+
 ```
 {
    "rgb":{
       "red":140,
       "green":200,
       "blue":100
+   },
+   "rgbw":{
+      "red":40,
+      "green":94,
+      "blue":0,
+      "white":100
+   },
+   "hsi":{
+      "hue":95,
+      "staturation":31,
+      "intensity":57
    },
    "hsv":{
       "hue":96,
@@ -80,11 +91,13 @@ Return
 ```
 
 ### How to use
+
 You can send in the payload one of the types supported
 
 You can send
 
 RGB
+
 ```
 {
     "payload":{
@@ -97,7 +110,37 @@ RGB
 }
 ```
 
+RGBW
+
+```
+{
+    "payload":{
+        "rgbw": {
+            "red": 40,
+            "green": 94,
+            "blue": 0,
+            "white": 100
+        }
+    }
+}
+```
+
+HSI
+
+```
+{
+    "payload":{
+        "hsi": {
+            "hue": 95,
+            "staturation": 31,
+            "intensity": 57
+        }
+    }
+}
+```
+
 HSV
+
 ```
 {
     "payload":{
@@ -111,6 +154,7 @@ HSV
 ```
 
 HSL
+
 ```
 {
     "payload":{
@@ -124,6 +168,7 @@ HSL
 ```
 
 HWB
+
 ```
 {
     "payload":{
@@ -137,6 +182,7 @@ HWB
 ```
 
 CMYK
+
 ```
 {
     "payload":{
@@ -151,6 +197,7 @@ CMYK
 ```
 
 CMYK
+
 ```
 {
     "payload":{
@@ -164,6 +211,7 @@ CMYK
 ```
 
 HEX
+
 ```
 {
     "payload":{
@@ -173,6 +221,7 @@ HEX
 ```
 
 Temperature
+
 ```
 {
     "payload":{
@@ -182,6 +231,7 @@ Temperature
 ```
 
 Keyword
+
 ```
 {
     "payload":{
@@ -191,6 +241,7 @@ Keyword
 ```
 
 Direct Payload
+
 ```
 {
     "payload": "red"
@@ -198,6 +249,7 @@ Direct Payload
 ```
 
 Direct Color Name in Payload
+
 ```
 {
     "payload": "red"
@@ -205,6 +257,7 @@ Direct Color Name in Payload
 ```
 
 Direct Color Temperature Name in Payload
+
 ```
 {
     "payload": "daylight"
