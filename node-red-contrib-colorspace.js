@@ -1,6 +1,121 @@
 const ColorConverter = require("color-convert");
 const ColorTemperature = require("color-temperature");
 
+function toInt(value) {
+  return parseInt(value, 10);
+}
+
+function constrain(value, min, max) {
+  var valueOut = value;
+  if (valueOut < min) valueOut = min;
+  else if (valueOut > max) valueOut = max;
+
+  return valueOut;
+}
+
+function fmod(a, b) {
+  return Number((a - Math.floor(a / b) * b).toPrecision(8));
+}
+
+function rgbToHsi(param) {
+  var red = param[0];
+  var green = param[1];
+  var blue = param[2];
+
+  var hue = 0;
+  var redIn = constrain(red / 255.0, 0.0, 1.0);
+  var greenIn = constrain(green / 255.0, 0.0, 1.0);
+  var blueIn = constrain(blue / 255.0, 0.0, 1.0);
+  var intensity = 0.33333 * (redIn + greenIn + blueIn);
+
+  var max = Math.max(redIn, greenIn, blueIn);
+  var min = Math.min(redIn, greenIn, blueIn);
+
+  var saturation = 0.0;
+  if (intensity === 0.0) saturation = 0.0;
+  else saturation = 1.0 - min / intensity;
+
+  if (max === min) hue = 0;
+  if (max === redIn) {
+    if (max === min) hue = 0.0;
+    else hue = 60.0 * (0.0 + (greenIn - blueIn) / (max - min));
+  }
+  if (max === greenIn) {
+    if (max === min) hue = 0.0;
+    else hue = 60.0 * (2.0 + (blueIn - redIn) / (max - min));
+  }
+  if (max === blueIn) {
+    if (max === min) hue = 0.0;
+    else hue = 60.0 * (4.0 + (redIn - greenIn) / (max - min));
+  }
+  if (hue < 0.0) hue += 360;
+  saturation = Math.abs(saturation * 100);
+  intensity = toInt(intensity * 100);
+
+  return [toInt(hue), toInt(Math.abs(saturation)), toInt(intensity)];
+}
+
+function hsiToRgbw(param) {
+  var hue = param[0];
+  var saturation = param[1];
+  var intensity = param[2];
+  var red = 0;
+  var green = 0;
+  var blue = 0;
+  var white = 0;
+  var cosH = 0.0;
+  var cos1047H = 0.0;
+  var saturationIn = 0.0;
+  var intensityIn = 0.0;
+
+  var hueIn = fmod(hue, 360);
+  hueIn = (Math.PI * hueIn) / 180.0;
+  saturationIn = constrain(saturation, 0, 100) / 100;
+  intensityIn = constrain(intensity, 0, 100) / 100;
+
+  if (hueIn < 2.09439) {
+    cosH = Math.cos(hueIn);
+    cos1047H = Math.cos(1.047196667 - hueIn);
+    red = ((saturationIn * 255.0 * intensityIn) / 3.0) * (1.0 + cosH / cos1047H);
+    green = ((saturationIn * 255.0 * intensityIn) / 3.0) * (1.0 + (1.0 - cosH / cos1047H));
+    blue = 0.0;
+    white = 255.0 * (1.0 - saturationIn) * intensityIn;
+  } else if (hueIn < 4.188787) {
+    hueIn -= 2.09439;
+    cosH = Math.cos(hueIn);
+    cos1047H = Math.cos(1.047196667 - hueIn);
+    green = ((saturationIn * 255.0 * intensityIn) / 3.0) * (1.0 + cosH / cos1047H);
+    blue = ((saturationIn * 255.0 * intensityIn) / 3.0) * (1.0 + (1.0 - cosH / cos1047H));
+    red = 0.0;
+    white = 255.0 * (1.0 - saturationIn) * intensityIn;
+  } else {
+    hueIn -= 4.188787;
+    cosH = Math.cos(hueIn);
+    cos1047H = Math.cos(1.047196667 - hueIn);
+    blue = ((saturationIn * 255.0 * intensityIn) / 3.0) * (1.0 + cosH / cos1047H);
+    red = ((saturationIn * 255.0 * intensityIn) / 3.0) * (1.0 + (1.0 - cosH / cos1047H));
+    green = 0.0;
+    white = 255.0 * (1.0 - saturationIn) * intensityIn;
+  }
+
+  return [toInt(constrain(red * 3, 0, 255)), toInt(constrain(green * 3, 0, 255)), toInt(constrain(blue * 3, 0, 255)), toInt(constrain(white, 0, 255))];
+}
+
+function rgbToRgbw(param) {
+  var hsi = rgbToHsi(param);
+  return hsiToRgbw(hsi);
+}
+
+const myColorConverter = {
+  rgb: {
+    hsi: rgbToHsi,
+    rgbw: rgbToRgbw,
+  },
+  hsi: {
+    rgbw: hsiToRgbw,
+  },
+};
+
 module.exports = function exports(RED) {
   function ColorConverterNode(config) {
     var node;
@@ -25,6 +140,8 @@ module.exports = function exports(RED) {
 
     this.colors = {
       rgb: ["red", "green", "blue"],
+      rgbw: ["red", "green", "blue", "white"],
+      hsi: ["hue", "saturation", "intensity"],
       hsv: ["hue", "saturation", "brightness"],
       hex: "",
       hsl: ["hue", "saturation", "lightness"],
@@ -97,6 +214,7 @@ module.exports = function exports(RED) {
     };
 
     this.colorConverter = function colorConverter(main, col) {
+      var data;
       var mainColor = main;
       var rcolor = JSON.parse(JSON.stringify(col));
       var param = [];
@@ -110,7 +228,7 @@ module.exports = function exports(RED) {
         for (const cname in this.temperatures) {
           if (this.temperatures[cname] === rcolor.keyword) {
             rcolor.rgb = ColorTemperature.colorTemperature2rgb(cname);
-            rcolor.temperature = parseInt(cname, 10);
+            rcolor.temperature = toInt(cname);
             mainColor = "rgb";
             delete rcolor.keyword;
             break;
@@ -148,9 +266,11 @@ module.exports = function exports(RED) {
 
         delete rcolor[c];
 
-        if (ColorConverter[mainColor] === undefined || ColorConverter[mainColor][c] === undefined) continue;
-
-        const data = ColorConverter[mainColor][c](param);
+        if (ColorConverter[mainColor] !== undefined && ColorConverter[mainColor][c] !== undefined) {
+          data = ColorConverter[mainColor][c](param);
+        } else if (myColorConverter[mainColor] !== undefined && myColorConverter[mainColor][c] !== undefined) {
+          data = myColorConverter[mainColor][c](param);
+        } else continue;
 
         if (data === undefined) continue;
 
