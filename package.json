@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-colorspace",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Conver colors and colors temperature in NodeRed",
   "node-red": {
     "nodes": {
